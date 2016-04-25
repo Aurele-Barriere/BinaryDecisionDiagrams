@@ -1,0 +1,54 @@
+#*********************************#
+#       tp_bdd's README           #
+#*********************************#
+
+- What files/directories are there?
+   * this the README file
+   * Makefile to produce both
+        * a toplevel configuration file: .ocaml
+        * and an executable from the main.ml file: main
+   * test.ml to quick start with the toplevel
+   * main.ml to produce an executable file
+   * init.ml to properly initialize the toplevel when building it
+   * doc.mli: signatures of librairies functions you will need  
+   * lib contains all required librairies. 
+        Libs are automatically compiled, read and loaded in the toplevel 
+	when building it from Makefile
+
+- What dependencies do I need?
+   * camlp5, to use the formulas parser and printer. This can be
+     installed from http://camlp5.gforge.inria.fr/, or using opam
+     (http://opam.ocamlpro.com/). The camlp5 files should be placed
+     in SLIB/camlp5/, where "SLIB" is your standard ocamlc library
+     directory (displayed using 'ocamlc -v'). Be careful that e.g.
+     opam will install them somewhere else by default, and they may
+     need to be moved.
+   * ocamlfind
+   * standard ocaml librairies nums.cma and toplevellib.cma
+   * that should be it
+
+- About the directory lib 
+   * the libraries source files are included, ONLY for a compilation 
+     purpose. Therefore, you should not waste your time trying to read the
+     source code, and should better refer to the file doc.mli. This file
+     gives you the names and signatures of the functions you will need. 
+   * See main.ml and test.ml to see how to easily build propositional
+     formulas using a dedicated syntax.
+
+- How do I know whether everything is ok?
+   * run make in the root directory tp_bdd. All should compile correctly.
+   * run ./main to run the executable
+   * optionnaly, open test.ml with Emacs, launch the ocaml toplevel,
+     evaluate the code.
+
+- What should I do?
+   * Read the doc.mli file to see functions at your disposal.
+   * Read and execute the main.ml file to see some usage examples.
+   * The test.ml file also provides examples.
+   * You shouldn't really need to look at any other file.
+   * From there, you should be able to fill out the main.ml file with
+     the required functions (make, apply_neg, apply, build...).
+   * Comment your code!
+
+- It does not work. What can I do ?
+   * if all else fails, send a mail to brice.minaud@irisa.fr
