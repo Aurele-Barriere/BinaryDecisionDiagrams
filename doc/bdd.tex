@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage{amsmath,amsfonts,amssymb}
-\usepackage{fullpage}
+%\usepackage{fullpage}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{listings}
@@ -14,7 +14,7 @@
 
 
 \def\question#1{\subsection*{Question #1}}
-
+\def\phix{\varphi\uparrow\up{x}}
 \begin{document}
 \maketitle
 %\newpage
@@ -22,6 +22,23 @@
 \section*{2\ BDD et forme normale if-then-else}
 
 \question{1}
+
+On a $\varphi\equiv\phix$ ssi pour toute valuation $V$, $V(\varphi) = V(\phix)$.
+
+Soit $V$ une valuation quelconque. 
+
+\paragraph{Supposons dans un premier temps $V(x) = 1$.} Comme $\phix = (x \wedge\varphi[1/x])\vee(\neg x\wedge\varphi[0/x])$ par définition, on a $V(\phix) = V(\varphi[1/x])$.
+
+De même, comme $V(x) = 1$, on peut remplacer $x$ par 1 dans $\varphi$ sans changer $V(\varphi)$. En effet, par la définition inductive de la valuation d'une formule est un prolongement de la valuation sur les variables. Ainsi $V(\varphi)=V(\varphi[1/x])$ quand $V(x)=1)$.
+
+Ainsi, dans ce cas, on a bien $V(\varphi) = V(\phix)$.
+
+\paragraph{Désormais, supposons $V(x)=0$.} Cette fois-ci, $V(\phix) = V(\varphi[0/x])$.
+
+De même, $V(\varphi) =  V(\varphi[0/x]) = V(\phix)$.
+
+Ainsi, on a bien $\varphi\equiv\phix$.
+
 \question{2}
 \question{3}
 
