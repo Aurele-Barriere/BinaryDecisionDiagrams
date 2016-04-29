@@ -50,7 +50,7 @@ En effet, soit $\varphi$ une formule faisant intervenir $n$ variables. On choisi
 On construit l'arbre de décision suivant : la racine est $x_1$, et le fils faible et fort de $x_i$ sont $x_{(i+1)}$ pour $i\in\{1\dots n-1\}$. Enfin les fils faibles et forts des noeuds étiquetés $x_n$ sont la valeur de $\varphi$ par la valuation qui à $x_i$ associe 1 si pour aboutir à cette feuille il faut prendre le fils fort à la $i$\up{ème} ligne, et 0 sinon.
 %j'espere que c'est clair, c'est un truc tout ballot mais bon faut l'expliquer
 
-On rmarque également que tout sous-arbre d'un arbre de décision reste un arbre de décision. %utile pour l'hérédité
+On remarque également que tout sous-arbre d'un arbre de décision reste un arbre de décision. %utile pour l'hérédité
 
 On va ensuite construire la forme \ite\ à partir de cet arbre de décision.
 
@@ -68,11 +68,16 @@ Dans ce cas, la formule est équivalent à $\phix$. C'est bien équivalent par l
 \paragraph{Hérédité : }
 On suppose $\P (n)$ vraie. Montrons $\P (n+1)$.
 
-Soit $\varphi$ une formule utilisant $n+1$ variables $x_1\dots x_{n+1}$. Son arbre d décision construit comme précédemment a pour racine $x_1$, dont les fils faibles et forts sont les racines de sous-arbres de décision de hauteur $n$. Ces deux sous-arbres représentent donc deux formule équivalentex à deux formes \ite\ par hypothèse de récurrence. Ces formules \ite\ seront notées $f$ et $F$,
+Soit $\varphi$ une formule utilisant $n+1$ variables $x_1\dots x_{n+1}$. Son arbre de décision construit comme précédemment a pour racine $x_1$, dont les fils faibles et forts sont les racines de sous-arbres de décision de hauteur $n$ (et de racine étiquetée par $x_2$). Ces deux sous-arbres représentent donc deux formule équivalentes à deux formes \ite\ par hypothèse de récurrence. Ces formules \ite\ seront notées $f$ et $F$,
 
 On peut donc construire la formule \ite\ suivante : $x_1\rightarrow f,F$. C'est bien une formule \ite\ : $f$ et $F$ le sont, et on a utilisé l'opérateur \ite\ avec en formule test $x_1$, une variable non niée.
 
-De plus, $\varphi$ est bien équivalent à cette formule, % à finir
+De plus, $\varphi$ est bien équivalent à cette formule, puisque dans les feuilles de $f$ on consière les valuations où $x_1 = 0$ et dans $F$ les valuations où $x_1 = 1$.
+
+
+\paragraph{En conclusion} on a montré par récurrence $\P (n)\forall n\in\mathbb{N}$.
+
+De plus, comme toute formule implique un nombre finie de variables (étant elle-même finie), alors toute formule est équivalente à une formule \ite.
 
 \question{3}
 
