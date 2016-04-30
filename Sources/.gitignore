@@ -1,5 +1,5 @@
 .ocamlinit
-bla.dot
-main.cmi
-main.cmo
+*.dot
+*.cmi
+*.cmo
 main
