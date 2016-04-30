@@ -40,15 +40,24 @@ let make (t:tableT) (h:tableH) (i:variable) (low:id) (high:id) =
     else low ;;
 
 let rec apply_neg (t:tableT) (h:tableH) (i:id) =
-  let (var, low, high) = (var t i, low t i, high t i) in
-  make t h var (apply_neg t h low) (apply_neg t h high) ;;
-
-exception Exception_Different_Vars of (variable * variable) ;;
+  match i with
+  | 0 -> 1
+  | 1 -> 0
+  | _ ->
+    let (var, low, high) = (var t i, low t i, high t i) in
+    make t h var (apply_neg t h low) (apply_neg t h high) ;;
 
 let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
+  if (isZero(i1) || isOne(i1)) && (isZero(i2) || isOne(i2)) then
+    match op with
+    | Et -> min i1 i2
+    | Ou -> max i1 i2
+    | Impl -> max (1 - i1) i2
+    | Equiv -> min (max (1 - i1) i2) (max (1 - i2) i1)
+  else
   let (var1, low1, high1) = (var t i1, low t i1, high t i1)
   and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
-  if var1 != var2 then raise (Exception_Different_Vars (var1, var2))
+  if var1 != var2 then make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
   else make t h var1 (apply t h op low1 low2) (apply t h op high1 high2) ;;
 
 let rec build (t:tableT) (h:tableH) (p:prop formula) =
@@ -91,3 +100,17 @@ let anysat (t:tableT) (i:id) =
       | Exception_Not_Satisfiable -> (var t h, true)::(f t h lst)
   in
   f t i [] ;;
+
+let _ =
+  let fsimple = << 1 /\ 2 >> in
+  let t = init_t 20 and h = init_ht 20 in
+  print_int (build t h fsimple); print_newline () ;;
+
+
+let _ =
+  let tauto = << ( 1 <=> 2 ) \/ ( 1 <=> ~2 )>> in
+  let t = init_t 20 and h = init_ht 20 in
+  let tauto_id = build t h tauto in
+  print_string "built"; print_newline ();
+  print_bool (sat t tauto_id); print_newline ();
+  print_bool (valid t tauto_id); print_newline () ;;
