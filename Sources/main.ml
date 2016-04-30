@@ -61,9 +61,9 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
       if var1 != var2 then
 	make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
       else
-	make t h var1 (apply t h op low1 low2) (apply t h op high1 high2) 
+	make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
     else
-      let (*(var1, low1, high1) = (var t i1, low t i1, high t i1) 
+      let (*(var1, low1, high1) = (var t i1, low t i1, high t i1)
       and *)(var2, low2, high2) = (var t i2, low t i2, high t i2) in
       make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)
 ;;
@@ -104,21 +104,38 @@ let anysat (t:tableT) (i:id) =
     | 1 -> lst
     | _ ->
       let (l, h) = (low t i, high t i) in
-      try (var t l, false)::(f t l lst) with
-      | Exception_Not_Satisfiable -> (var t h, true)::(f t h lst)
+      try (var t i, false)::(f t l lst) with
+      | Exception_Not_Satisfiable -> (var t i, true)::(f t h lst)
   in
   f t i [] ;;
 
 let _ =
   let fsimple = << 1 /\ 2 >> in
   let t = init_t 20 and h = init_ht 20 in
-  print_int (build t h fsimple); print_newline () ;;
+  assert (build t h fsimple = 4);
+  print_string "Test 1 succeed"; print_newline ();;
 
 
 let _ =
-  let tauto = << ( 1 <=> 2 ) \/ ( 1 <=> ~2 )>> in
+  let tauto = << ( 1 <=> 2 ) \/ ( 1 <=> ~2 ) >> in
   let t = init_t 20 and h = init_ht 20 in
   let tauto_id = build t h tauto in
-  print_string "built"; print_newline ();
-  print_bool (sat t tauto_id); print_newline ();
-  print_bool (valid t tauto_id); print_newline () ;;
+  assert(sat t tauto_id = true);
+  assert(valid t tauto_id = true);
+  print_string "Test 2 succeed"; print_newline () ;;
+
+let _ =
+  let always_false = << (1 <=> 2) /\ (1 <=> ~2) >> in
+  let t = init_t 20 and h = init_ht 20 in
+  let id = build t h always_false in
+  assert(sat t id = false);
+  assert(valid t id = false);
+  print_string "Test 3 succeed"; print_newline () ;;
+
+let _ =
+  let one_true = << 1 /\ (2 /\ ~3) >> in
+  let t = init_t 20 and h = init_ht 20 in
+  let id = build t h one_true in
+  assert(sat t id = true);
+  assert(anysat t id = [(1, true); (2, true); (3, false)]);
+  print_string "Test 4 succeed"; print_newline () ;;
