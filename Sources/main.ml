@@ -122,6 +122,7 @@ let _ =
   let tauto_id = build t h tauto in
   assert(sat t tauto_id = true);
   assert(valid t tauto_id = true);
+  assert(anysat t tauto_id = []);
   print_string "Test 2 succeed"; print_newline () ;;
 
 let _ =
@@ -139,3 +140,49 @@ let _ =
   assert(sat t id = true);
   assert(anysat t id = [(1, true); (2, true); (3, false)]);
   print_string "Test 4 succeed"; print_newline () ;;
+
+let nqueens_formula_case n i j =
+  let formula = ref (Atom(P(i+n*j))) in
+  for i' = 0 to n-1 do
+    if i' != i then formula := And(!formula, Not(Atom(P(i' + n*j))))
+  done;
+  for j' = 0 to n-1 do
+    if j' != j then formula := And(!formula, Not(Atom(P(i + n*j'))))
+  done;
+  for i' = max (-i) (-j) to min (n-1-i) (n-1-j) do
+    if i' != 0 then formula := And(!formula, Not(Atom(P(i+i' + n*(j+i')))))
+  done;
+  !formula ;;
+
+let range n1 n2 =
+  let rec r n1 n2 l =
+    match n2-n1 With
+    | 0 -> l
+    | _ -> n1::(range (n1+1) n2) ;;
+
+let nqueens_formula n =
+  let formula = ref (if n=0 then True else False) in
+  for i = 0 to n-1 do
+    for j = 0 to n-1 do
+      formula := Or(!formula, nqueens_formula_case n i j)
+    done;
+  done;
+  let f n deg =
+    match deg With
+    | 0 -> []
+    |
+  !formula ;;
+
+let nqueens n =
+  let formula = nqueens_formula n in
+  let t = init_t 2000 and h = init_ht 2000 in
+  let id = build t h formula in
+  time anysat t id;;
+
+let _ =
+  for i = 0 to 8 do
+    print_int i; print_string " queens"; print_newline ();
+    let result = nqueens i in
+    List.iter (fun (x, y) -> (print_int x; print_string " = "; print_bool y; print_newline ())) result
+  done;
+  () ;;
