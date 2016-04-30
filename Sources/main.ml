@@ -34,10 +34,10 @@ let u = add t 1 0 1 in
 let make (t:tableT) (h:tableH) (i:variable) (low:id) (high:id) =
   try lookup h i low high with
   | CleAbsente(_) ->
-      if low != high then
-        let u = add t i low high in
-        insert h i low high u; u
-      else low ;;
+    if low != high then
+      let u = add t i low high in
+      insert h i low high u; u
+    else low ;;
 
 let rec apply_neg (t:tableT) (h:tableH) (i:id) =
   let (var, low, high) = (var t i, low t i, high t i) in
@@ -67,5 +67,27 @@ let rec sat (t:tableT) (i:id) =
   | 0 -> false
   | 1 -> true
   | _ ->
+    let (l, h) = (low t i, high t i) in
+    sat t l || sat t h ;;
+
+let rec valid (t:tableT) (i:id) =
+  match i with
+  | 0 -> false
+  | 1 -> true
+  | _ ->
+    let (l, h) = (low t i, high t i) in
+    valid t l && valid t h ;;
+
+exception Exception_Not_Satisfiable
+
+let anysat (t:tableT) (i:id) =
+  let rec f (t:tableT) (i:id) (lst:(variable * bool) list) =
+    match i with
+    | 0 -> raise Exception_Not_Satisfiable
+    | 1 -> lst
+    | _ ->
       let (l, h) = (low t i, high t i) in
-      sat t l || sat t h;;
+      try (var t l, false)::(f t l lst) with
+      | Exception_Not_Satisfiable -> (var t h, true)::(f t h lst)
+  in
+  f t i [] ;;
