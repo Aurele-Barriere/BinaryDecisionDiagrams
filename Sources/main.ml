@@ -61,3 +61,11 @@ let rec build (t:tableT) (h:tableH) (p:prop formula) =
   | Or (x, y) -> apply t h Ou (build t h x) (build t h y)
   | Iff (x, y) -> apply t h Equiv (build t h x) (build t h y)
   | Imp (x, y) -> apply t h Impl (build t h x) (build t h y)
+
+let rec sat (t:tableT) (i:id) =
+  match i with
+  | 0 -> false
+  | 1 -> true
+  | _ ->
+      let (l, h) = (low t i, high t i) in
+      sat t l || sat t h;;
