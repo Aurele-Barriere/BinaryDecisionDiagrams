@@ -55,10 +55,12 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
     | Impl -> max (1 - i1) i2
     | Equiv -> min (max (1 - i1) i2) (max (1 - i2) i1)
   else
-  let (var1, low1, high1) = (var t i1, low t i1, high t i1)
-  and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
-  if var1 != var2 then make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
-  else make t h var1 (apply t h op low1 low2) (apply t h op high1 high2) ;;
+    let (var1, low1, high1) = (var t i1, low t i1, high t i1)
+    and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
+    if var1 != var2 then
+      make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
+    else
+      make t h var1 (apply t h op low1 low2) (apply t h op high1 high2) ;;
 
 let rec build (t:tableT) (h:tableH) (p:prop formula) =
   match p with
