@@ -11,6 +11,10 @@ let print_formula fm = print_prop_formula fm; print_newline();;
 let f = << ( 1 <=> 2 ) /\ ( 3 <=> 4 )>>;;
 print_formula f;;
 
+let max a b = if a>b then a else b;;
+let min a b = if a<b then a else b;;
+
+
 let taille = 100 in
 (* initialization of tables*)
 let t = init_t taille in
@@ -163,13 +167,35 @@ let nqueens_line n j =
   done;
   !formula ;;
 
+
+let nqueens_diag1 n k =
+  let formula = ref False in 
+  for i = (max 0 (k-n+1)) to (min k (n-1)) do 
+    let formula_t = ref True in
+    for i' = (max 0 (k-n+1)) to (min k (n-1)) do
+      let j = k-i' in
+      formula_t := And(!formula_t, if i=i' then Atom(P(i+n*j)) else Not(Atom(P(i'+n*j))))
+    done;
+    formula := Or(!formula_t, !formula)
+  done;
+  !formula ;;
+
+let nqueens_diag2 n k =
+  let formula = ref False in
+  !formula ;;
+
 let nqueens_formula n =
   let formula = ref True in
   for i = 0 to n-1 do
     formula := And(!formula, nqueens_line n i);
     formula := And(!formula, nqueens_column n i)
   done;
+  for k = 0 to (2*n)-2 do
+    formula := And(!formula, nqueens_diag1 n k);
+    (*formula := And(!formula, nqueens_diag2 n k)*)
+  done;
   !formula ;;
+
 
 let nqueens n =
   let formula = nqueens_formula n in
