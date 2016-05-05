@@ -174,8 +174,11 @@ let nqueens_diag1 n k =
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
       let j = k-i' in
-      formula_t := And(!formula_t, if i=i' then Atom(P(i+n*j)) else Not(Atom(P(i'+n*j))))
+      if i<>i' then
+      formula_t := And(!formula_t, Not(Atom(P(i'+n*j))))
     done;
+    let j = k-i in
+    formula_t := Or(!formula_t, Not(Atom(P(i+n*j))));
     formula := Or(!formula_t, !formula)
   done;
   !formula ;;
@@ -186,8 +189,11 @@ let nqueens_diag2 n k =
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
       let j = i'-k+n-1 in
-      formula_t := And(!formula_t, if i=i' then Atom(P(i+n*j)) else Not(Atom(P(i'+n*j))))
+      if i<>i' then
+      formula_t := And(!formula_t, Not(Atom(P(i'+n*j))))
     done;
+    let j = i-k+n-1 in
+    formula_t := Or(!formula_t, Not(Atom(P(i+n*j))));
     formula := Or(!formula_t, !formula)
   done;
   !formula ;;
@@ -201,9 +207,9 @@ let nqueens_formula n =
   done;
   for k = 0 to (2*n)-2 do
     formula := And(!formula, nqueens_diag1 n k);
-    (*formula := And(!formula, nqueens_diag2 n k)*)
+    formula := And(!formula, nqueens_diag2 n k)
   done;
-  !formula ;;
+  And(!formula, Not(Atom(P(n-1)))) ;;
 
 
 let nqueens n =
