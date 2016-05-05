@@ -67,8 +67,7 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
       else
 	make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
     else
-      let (*(var1, low1, high1) = (var t i1, low t i1, high t i1)
-      and *)(var2, low2, high2) = (var t i2, low t i2, high t i2) in
+      let (var2, low2, high2) = (var t i2, low t i2, high t i2) in
       make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)
 ;;
 
@@ -169,7 +168,7 @@ let nqueens_line n j =
 
 
 let nqueens_diag1 n k =
-  let formula = ref False in 
+  let formula = ref True in 
   for i = (max 0 (k-n+1)) to (min k (n-1)) do 
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -179,12 +178,12 @@ let nqueens_diag1 n k =
     done;
     let j = k-i in
     formula_t := Or(!formula_t, Not(Atom(P(i+n*j))));
-    formula := Or(!formula_t, !formula)
+    formula := And(!formula_t, !formula)
   done;
   !formula ;;
 
 let nqueens_diag2 n k =
-  let formula = ref False in 
+  let formula = ref True in 
   for i = (max 0 (k-n+1)) to (min k (n-1)) do 
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -194,7 +193,7 @@ let nqueens_diag2 n k =
     done;
     let j = i-k+n-1 in
     formula_t := Or(!formula_t, Not(Atom(P(i+n*j))));
-    formula := Or(!formula_t, !formula)
+    formula := And(!formula_t, !formula)
   done;
   !formula ;;
 
@@ -209,19 +208,46 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
-  !formula ;;
+  And(!formula, Not(Atom(P(n-1)))) ;;
 
+
+(*let nqueens_case n i j= 
+  let formula = ref True in 
+  for k = 0 to n-1 do 
+    if k<>i then 
+      formula := And(!formula, Not(Atom(P(k+j*n)))); (* line *)
+  done;
+  for k = 0 to n-1 do 
+    if k<>j then
+      formula := And(!formula, Not(Atom(P(i+k*n)))); (* column *)
+  done;
+  Or(!formula, Not(Atom(P(i+j*n)))) ;;
+*)
+
+(*let nqueens_formula2 n = 
+  let formula = ref True in 
+  for i = 0 to n-1 do 
+    for j = 0 to n-1 do 
+      formula := And(!formula, nqueens_case n i j)
+    done;
+  done;
+  !formula ;;
+*)
 
 let nqueens n =
   let formula = nqueens_formula n in
   let t = init_t 2000 and h = init_ht 2000 in
   let id = build t h formula in
+  print_string "Finished building"; print_newline();
   anysat t id;;
 
 let print_sol_nqueens n sol =
   for i = 0 to n-1 do
     for j = 0 to n-1 do
+      try
       print_string (if assoc (i+n*j) sol then "1" else "0")
+      with
+      |Failure("find") -> print_string "?"
     done;
     print_newline ()
   done;
