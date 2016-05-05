@@ -60,16 +60,20 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
     | Impl -> max (1 - i1) i2
     | Equiv -> min (max (1 - i1) i2) (max (1 - i2) i1)
   else
-    (*if (not(isZero(i1)) && not(isOne(i1))) then*)
+    (*if (not(isZero(i1)) && not(isOne(i1))) then
+      if (not(isZero(i2)) && not(isOne(i2))) then*)
       let (var1, low1, high1) = (var t i1, low t i1, high t i1)
       and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
-      if var1 > var2 then
+      if (var1 > var2 || isZero(i2) || isOne(i2))then
 	make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
-      else if var2 > var1 then
+      else if (var2 > var1 || isZero(i1) || isOne(i1)) then
 	make t h var2 (apply t h op low2 i1) (apply t h op high2 i1) 
       else (* var1 == var2 *)
 	make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
-      (*else 
+      (*else
+	let (var1, low1, high1) = (var t i1, low t i1, high t i1) in 
+	 make t h var1 (apply t h op i2 low1) (apply t h op i2 high1)
+      else 
       let (var2, low2, high2) = (var t i2, low t i2, high t i2) in
       make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)*)
 ;;
