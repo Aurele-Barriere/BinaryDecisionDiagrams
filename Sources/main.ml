@@ -205,7 +205,7 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_line n i);
     formula := And(!formula, nqueens_column n i)
   done;
-  for k = 0 to (2*n)-2 do
+  for k = 1 to (2*n)-3 do
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
