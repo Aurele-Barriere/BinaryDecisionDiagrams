@@ -209,7 +209,7 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
-  And(!formula, Not(Atom(P(n-1)))) ;;
+  !formula ;;
 
 
 let nqueens n =
