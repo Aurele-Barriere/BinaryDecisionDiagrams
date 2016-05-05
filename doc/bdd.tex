@@ -80,6 +80,43 @@ De plus, $\varphi$ est bien équivalent à cette formule, puisque dans les feuil
 De plus, comme toute formule implique un nombre finie de variables (étant elle-même finie), alors toute formule est équivalente à une formule \ite.
 
 \question{3}
+Montrons l'existence et l'unicité, pour toute formule, d'un ROBDD équivalent.
+
+Nous considérons une formule $f$.
+\paragraph{Existence :}
+
+\paragraph{Unicité :} 
+Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliqées dans une formule.
+
+\subparagraph{Initialisation :}
+$n = 0$ Lorsque la formule $f$ n'utilise aucune variable, alors elle est équivalente à 0 ou 1. L'unique ROBBD correspondant consiste donc en un seul noeud.
+
+\subparagraph{Hérédité :}
+Supposons l'unicité pour toute formule utilisant $n$ variables. Considérons maintenant la formule $f$ en utiilsant $n+1$, notées $x_1\dots x_{n+1}$.
+
+On peut se trouver dans deux situations, selon si la variable $x_1$ est utile ou non dans la formule.
+
+Si $x_1$ n'est pas utile, c'est-à-dire que $f[1/x_1]\equiv f[0/x_1]$, alors $x_1$ n'apparaît pas dans un ROBDD représentant $f$. Alors $f$ est une fonction de $n$ variables : $x_2\dots x_{n+1}$. Alors par hypothèse de récurrence, il existe un unique ROBDD représentant $f$.
+
+Si la valuation de $x_1$ importe dans la valuation de $f$, alors il faut que $x_1$ apparaisse dans tout ROBDD représentant $f$. De plus, il faut qu'il apparaisse à la racine dans un ROBDD, sinon on rencontrerait une autre variable avant $x_1$ et on ne serait plus ordonné. On est de plus garantis que $x_1$ n'apparaît pas en dessous, puisqu'en dessous de la racine on a fixé la valeur de $x_1$.
+
+Considérons alors deux ROBDDs représentant $f$ : $R_1$ et $R_2$. Ces deux ROBDD ont donc comme racine un n\oe ud étiqueté par $x_1$. Considérons désormais les fils de $x_1$ dans les deux arbres. Ces fils sont des ROBDD à $n$ variables, avec peut-être des n\oe uds communs.
+
+Notons $l_1 = low(x_1)$ dans $R_1$,  $h_1 = high(x_1)$ dans $R_1$, $l_2 = low(x_1)$ dans $R_2$,  $h_2 = high(x_1)$ dans $R_2$.
+
+Alors les graphes qui ont pour racines $l_1, l_2, h_1, h_2$ sont tous des ROBDD de formules à $n$ variables. Alors par hypothèse de récurrence ils sont uniques. Ainsi, comme $l_1$ et $l_2$ décrivent tous deux la formule $f[0/x_1]$, on a $l_1=l_2$. De même, $h_1=h_2$.
+
+Cependant, dans $R_1$ et $R_2$, ces sous-ROBDD sont imbriqués : $l_1$ et $h_1$ partagent peut-être des n\oe uds.
+
+Il faut donc montrer qu'il n'y a qu'une seule manière d'imbriquer deux ROBDD utilisant les mêmes variables dans le même ordre.
+%c'est ca le point ``tricky''
+
+Or c'est bien le cas : pour chaque variable $x_i$, $i\in[2\dots n]$ (ou pour chaque n\oe ud 0 et 1), lorsque deux noeuds étiquetés par $x_i$ ont les même fils dans un ROBDD comme dans l'autre, on les fusionne. Et on recommence tant qu'il existe de tels n\oe uds. Ce procédé ne peut conduire qu'à un seul ROBDD (quel que soit l'ordre dans lequel on considère les variables à fusionner), puisqu'une fusion ne modifie pas les graphes en dehors du n\oe ud fusionné, et ce procédé termine puisqu'il y a un nombre fini de n\oe uds. Enfin, ce procédé donne bien un ROBDD puisqu'il élimine tous les n\oe uds semblables.
+
+Il n'y a donc bien qu'une seule manière d'imbriquer $l_1$ et $h_1$. Donc $R_1$ et $R_2$ sont identiques. Donc il existe un unique ROBDD pour décrire une formule à $n+1$ variables.
+
+\subparagraph{Conclusion :} Ainsi, quel que soit le nombre de variables utilisées par une formule $f$, pour un ordre donné de ces variables il existe un unique ROBDD qui représente $f$.
 
 
 \end{document}
+
