@@ -175,14 +175,24 @@ let nqueens n =
   let formula = nqueens_formula n in
   let t = init_t 2000 and h = init_ht 2000 in
   let id = build t h formula in
-  time anysat t id;;
+  anysat t id;;
+
+let print_sol_nqueens n sol =
+  for i = 0 to n-1 do
+    for j = 0 to n-1 do
+      print_string (if assoc (i+n*j) sol then "1" else "0")
+    done;
+    print_newline ()
+  done;
+  () ;;
+
 
 let _ =
   for i = 0 to 8 do
     try
       print_int i; print_string " queens"; print_newline ();
       let result = nqueens i in
-      List.iter (fun (x, y) -> (print_int x; print_string " = "; print_bool y; print_newline ())) result
+      print_sol_nqueens i result
     with
     | Exception_Not_Satisfiable -> print_string "not satisfiable"; print_newline ();
   done;
