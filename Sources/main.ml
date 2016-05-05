@@ -5,6 +5,7 @@ open Formulas
 open Prop
 open Bdd
 
+
 (* Pretty-printer for formulas, to be used with compiled mode *)
 let print_formula fm = print_prop_formula fm; print_newline();;
 
@@ -208,7 +209,8 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
-  And(!formula, Not(Atom(P(n-1)))) ;;
+  print_formula !formula;
+  !formula ;;
 
 
 (*let nqueens_case n i j= 
@@ -254,8 +256,8 @@ let print_sol_nqueens n sol =
   () ;;
 
 
-let _ =
-  for i = 0 to 8 do
+(*let _ =
+  for i = 2 to 2 do
     try
       print_int i; print_string " queens"; print_newline ();
       let result = nqueens i in
@@ -264,3 +266,8 @@ let _ =
     | Exception_Not_Satisfiable -> print_string "not satisfiable"; print_newline ();
   done;
   () ;;
+*)
+
+
+#use "test_case.ml"
+;;
