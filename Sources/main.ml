@@ -164,7 +164,7 @@ let nqueens_line n j =
   !formula ;;
 
 let nqueens_formula n =
-  let formula = ref (if n=0 then True else False) in
+  let formula = ref True in
   for i = 0 to n-1 do
     formula := And(!formula, nqueens_line n i);
     formula := And(!formula, nqueens_column n i)
