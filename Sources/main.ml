@@ -181,8 +181,17 @@ let nqueens_diag1 n k =
   !formula ;;
 
 let nqueens_diag2 n k =
-  let formula = ref False in
+  let formula = ref False in 
+  for i = (max 0 (k-n+1)) to (min k (n-1)) do 
+    let formula_t = ref True in
+    for i' = (max 0 (k-n+1)) to (min k (n-1)) do
+      let j = i'-k+n-1 in
+      formula_t := And(!formula_t, if i=i' then Atom(P(i+n*j)) else Not(Atom(P(i'+n*j))))
+    done;
+    formula := Or(!formula_t, !formula)
+  done;
   !formula ;;
+
 
 let nqueens_formula n =
   let formula = ref True in
