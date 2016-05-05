@@ -84,6 +84,30 @@ Montrons l'existence et l'unicité, pour toute formule, d'un ROBDD équivalent.
 
 Nous considérons une formule $f$.
 \paragraph{Existence :}
+Proposons un algorithme pour construire un ROBDD à partir d'une formule. Si cet algorithme est correct, alors on aura bien l'existence d'un ROBDD pour représenter toute formule.
+
+Soit $f$ une formule, utilisant les variables $x_1\dots x_n$. Comme vu précédemment, on peut la mettre sous forme d'un arbre de décision ordonné, dont la racine est $x_1$, de fils $x_2$ \dots. 
+
+On va alors transformer cet arbre de décision en un ROBDD. Il faut conserver l'ordre des variables et supprimmer tout couple de n\oe uds ayant même étiquette et mêmes fils, puis vérifier la propriété d'utilité.
+
+On commence par fusionner toutes les feuilles 0, puis toutes les feuilles 1.
+
+Ensuite, on regarde les n\oe uds étiquetés par $x_n$. Lorsque deux n\oe uds ont les mêmes fils, on les fusionne : on n'a plus qu'un seul n\oe uds, dont les fils sont ceux des deux n\oe uds initiaux, et vers lequel on fait pointer toutes les flèches qui pointaient vers les n\oe uds initiaux.
+
+Ensuite, on regarde ceux étiquetés par $x_{n-1}$ et on fait la même chose.
+
+On continue jusqu'à la racine.
+
+On dispose donc d'un arbre de décision ordonné, tel qu'il n'existe plus deux n\oe uds ayant la même étiquette et les même fils. On a la propriété d'unicité. Cependant, il reste la condition d'utilité à vérifier.
+
+On parcourt donc le graphe obtenu, et dès qu'on voit un n\oe ud dont les fils faibles et forts sont égaux, on le supprime et on fait pointer tout ce qui pointait vers lui vers son fils. Cela ne change pas le reste du graphe donc on peut le faire dans l'ordre que l'on veut, tant qu'il reste de tels n\oe uds. Cela ne change pas non plus l'ordre des variables.
+
+Cependant, on a peut être compromis la condition d'unicité. On reparcourt alors en partant du bas pour supprimer les n\oe uds uniques. Puis on enlève encore les n\oe uds inutiles. Et on itère ces deux opérations jusqu'à stabilisation. 
+
+L'algorithme termine puisque chacune des opérations fait diminuer strictement le nombre de n\oe uds et que le graphe initial est fini.
+L'algorithme est correct puisqu'à la fin, on satisfait les deux conditions d'unicité et d'utilité : on a donc bien un ROBDD. Enfin, on n'a à aucun moment altéré la formule représntée par le graphe : toutes ces opérations sont licites sémantiquement. %bizarrement formulé?
+
+Ainsi, pour toute formule, avec un ordre donné, il existe un ROBDD qui représente cette formule.
 
 \paragraph{Unicité :} 
 Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliqées dans une formule.
