@@ -145,25 +145,26 @@ Il n'y a donc bien qu'une seule manière d'imbriquer $l_1$ et $h_1$. Donc $R_1$ 
 
 \section*{4. Implémentation de ROBDDs}
 \subsection*{Make}
-Pour la fonction \code{make}, on regarde si le n\oe ud existe déjà. Si ce n'est pas le cas, il faut l'ajouter dans les tables, à condition que \code{low} et \code{high} soient différent. En effet, s'ils sont identiques, on peut simplifier le n\oe ud et renvoyer \code{low}.
+Pour la fonction \code{make}, il y a deux possibilités. Si le n\oe ud existe déjà, il suffit de renvoyer son identifiant.
+Si ce n'est pas le cas, il faut l'ajouter dans les tables, à condition que \code{low} et \code{high} soient différent. En effet, s'ils sont identiques, il est possible de simplifier le n\oe ud et renvoyer \code{low}.
 % j'arrive pas a mieux xpliquer
 
 \subsection*{Apply\_neg}
-Pour la fonction \code{apply\_neg}, nous avons simplement implémenté la propriété qui nous été donnée. On a donc un parcours récursif de la formule, qui s'arrête une fois arrivé aux noeuds 0 et 1, que l'on inverse.
+Pour la fonction \code{apply\_neg}, nous avons simplement implémenté la propriété qui nous était donnée. Il s'agit donc d'un parcours récursif de la formule, qui s'arrête une fois arrivé aux noeuds 0 et 1, qu'il faut inverser.
 
 \subsection*{Apply}
 Pour la fonction \code{apply}, il y a plusieurs cas.
-Si les deux bdds sont des n\oe uds 1 ou 0, alors on applique directement l'opérateur.
+Si les deux bdds sont des n\oe uds 1 ou 0, alors il suffit d'appliquer directement l'opérateur.
 
-Sinon, si les deux étiquettes des racines sont différentes, il faut prendre l'étiquette la plus petite (qui vient en premier dans l'ordre des variables) et construire le bdd qui a pour racine cett variable et comme fils la construction à partir de l'autre arbre et des fils de ce n\oe ud.
+Sinon, si les deux étiquettes des racines sont différentes, il faut prendre l'étiquette la plus petite (qui vient en premier dans l'ordre des variables, afin de préserver la propriété d'ordonnancement) et construire le bdd qui a pour racine cette variable et comme fils les arbres construits de manière récursive grâce à la propriété.
 
-Enfin, si les deux étiquettes sont égales, alors on peut simplifier et n'en garder qu'une dans le bdd final.
+Enfin, si les deux étiquettes sont égales, alors on peut simplifier et n'en garder qu'une dans le graphe final.
 
-
-On aurait pu utiliser la programmation dynamique.
+On aurait pu utiliser la programmation dynamique. Nous aurions alors dû stocker dans une table d'association par exemple, les liens entre formules déjà appliquées et leur identifiant.
 
 \subsection*{Build}
-Pour la fonction \code{build}, il s'agit d'appels à \code{apply} avec le bon opérateur. On se sert de la définition inductive d'une formule.
+La fonction \code{build} consiste en essence à des appels à \code{apply} avec le bon opérateur. La fonction utilise la définition inductive d'une formule.
+Nous avons fait le choix, pour simplifier, de transformer toute implication en une négation et une disjonction. En effet, les deux étant équivalentes, le ROBDD construit sera le même.
 
 \subsection*{Sat}
 Une formule est satisfiable s'il existe au moins une valuation qui la rend vraie. Dans le ROBDD, une valuation correspond à un chemin dans le graphe. Si cette valuation existe, alors il existe un chemin qui mène au n\oe ud 1 dans le graphe.
@@ -171,19 +172,19 @@ Une formule est satisfiable s'il existe au moins une valuation qui la rend vraie
 Alors il suffit de parcourir le graphe récursivement à la recherche d'un 1.
 
 \subsection*{Valid}
-Pour savoir si une fonction est une tautologie, il ne faut pas qu'une valuation puisse rendre fausse la formule. Il ne faut donc pas qu'il y ait de 0 dans le ROBDD. On parcourt donc de même le graphe à la recherche d'un 0.
+Pour savoir si une fonction est une tautologie, il ne faut pas qu'une valuation puisse rendre fausse la formule. Il ne faut donc pas qu'il y ait de 0 dans le ROBDD. La fonction \code{valid} parcourt donc de même le graphe à la recherche d'un 0.
 
-Notons également qu'une formule valide sera naturellement strictement équivalente à 1, et donc aura le même ROBDD que 1 par unicité du ROBDD. Cela nous aurait permis de vérifier la validité bien plus simplement. De même, une formule est satisfiable si et seulement si son ROBDD n'est pas 0.
+Notons également qu'une formule valide sera naturellement strictement équivalente à 1, et donc aura le même ROBDD que 1 par unicité du ROBDD. Cela nous aurait permis de vérifier la validité bien plus simplement, et avec une complexité en temps constante. De même, une formule est satisfiable si et seulement si son ROBDD n'est pas 0.
 
 \subsection*{Anysat}
-Pour renvoyer une valuation qui satisfait la formule, on parcourt le graphe. Au fur et à mesure, on crée une liste de nos choix de chemins : c'est une valuation. Si on tombe sur 0, on a fait un mauvais choix, et on modifie donc la liste pour essayer une autre valuation. Si on tombe sur 1, alors on a une bonne valuation et on peut renvoyer la liste.
+Pour renvoyer une valuation qui satisfait la formule, nous parcourons en profondeur le graphe. Au fur et à mesure, une liste de nos choix de chemins est créée: c'est une valuation. Si le noeud 0 est atteint, un mauvais choix a été effectué, et il faut donc essayer une autre valuation. Si le noeud 1 est atteint, alors une valuation qui satisfait la formule est trouvée.
 
 \section*{4.6 Application : les $n$ dames}
 
 \subsection*{Construction de la formule}
 La résolution doit se découper en plusieurs étapes : création de la formule, traduction en ROBDD, résolution et affichage.
 
-La traduction en ROBDD se fait directement avec la fonction \code {build}, la résolution avec la fonction \code{anysat}. Enfin, on ajoute une fonction qui affichera l'échiquier.
+La traduction en ROBDD se fait directement avec la fonction \code {build}, la résolution avec la fonction \code{anysat}. Enfin, nous avons créé une fonction qui affiche l'échiquier.
 
 Pour traduire le problème en formule, nous avons choisi de prendre une variable par case de l'échiquier. Cette variable vaudra 1 si et seulement si il y a une dame sur cette case.
 
@@ -199,17 +200,17 @@ Il nous faut alors un moyen de paramétrer les diagonales pour parcourir les cas
 
 Pour les diagonales descendantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $i+j=k$. De plus, la diagonale commence en abcisse à l'indice $max(0,k-(n-1))$ et termine à l'indice $min(k,n-1)$. %ajouter un dessin? ou est ce que c'est suffisament clair?
 
-On a donc les formules suivantes à ajouter :
+Nous avons donc les formules suivantes à ajouter :
 $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
 
 
 Ensuite, pour les diagonales montantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $j=i-k+n-1$.
-On a donc les formules suivantes à ajouter :
+Nous avons donc les formules suivantes à ajouter :
 $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, l-k+n-1}\right)$$
 
-On peut se passer des formules pour les premières et dernières diagonales (elles ne comportent qu'une case).
+On peut se passer des formules pour les premières et dernières diagonales. En effet, elles ne comportent qu'une seule case.
 
-On ajoute donc la règle correspondant à chaque ligne, colonne et diagonale et construit le ROBDD correpondant.
+Ainsi, la construction du ROBDD se fait à partir de la formule obtenue. Il suffit alors d'éxécuter \code{anysat} pour obtenir une valuation qui satisfait le problème.
 
 \subsection*{Résultats}
 \begin{lstlisting}
@@ -259,7 +260,7 @@ not satisfiable
 Pour 8 dames, l'éxécution prend quelques minutes (moins de 5).
 
 \section*{Éxécuter notre code}
-Le code se compile avec le \code{Makefile} déjà présent dans les sources qui nous étaient données. Attention, selon l'installation de \code{camlp5}, il peut être nécessaire de changer certains chemins vers des modules Caml au début du \code{Makefile} dans le dossier lib/.
+Le code se compile avec le \code{Makefile} déjà présent dans les sources qui nous étaient données. Attention, selon l'installation de \code{camlp5}, et la distribution utilisée, il peut être nécessaire de changer certains chemins vers des modules Caml dans le \code{Makefile}.
 
 Ainsi, il faut lancer \code{make} qui crée un éxécutable \code{main}. Celui-ci peut alors être lancé pour faire la résolution des $n$ dames.
 
