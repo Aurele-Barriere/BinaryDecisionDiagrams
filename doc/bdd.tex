@@ -73,7 +73,7 @@ Soit $\varphi$ une formule utilisant $n+1$ variables $x_1\dots x_{n+1}$. Son arb
 
 On peut donc construire la formule \ite\ suivante : $x_1\rightarrow f,F$. C'est bien une formule \ite\ : $f$ et $F$ le sont, et on a utilisé l'opérateur \ite\ avec en formule test $x_1$, une variable non niée.
 
-De plus, $\varphi$ est bien équivalent à cette formule, puisque dans les feuilles de $f$ on consière les valuations où $x_1 = 0$ et dans $F$ les valuations où $x_1 = 1$.
+De plus, $\varphi$ est bien équivalent à cette formule, puisque dans les feuilles de $f$ on considère les valuations où $x_1 = 0$ et dans $F$ les valuations où $x_1 = 1$.
 
 
 \paragraph{En conclusion} on a montré par récurrence $\P (n)\forall n\in\mathbb{N}$.
@@ -89,7 +89,7 @@ Proposons un algorithme pour construire un ROBDD à partir d'une formule. Si cet
 
 Soit $f$ une formule, utilisant les variables $x_1\dots x_n$. Comme vu précédemment, on peut la mettre sous forme d'un arbre de décision ordonné, dont la racine est $x_1$, de fils $x_2$ \dots.
 
-On va alors transformer cet arbre de décision en un ROBDD. Il faut conserver l'ordre des variables et supprimmer tout couple de n\oe uds ayant même étiquette et mêmes fils, puis vérifier la propriété d'utilité.
+On va alors transformer cet arbre de décision en un ROBDD. Il faut conserver l'ordre des variables et supprimer tout couple de n\oe uds ayant même étiquette et mêmes fils, puis vérifier la propriété d'utilité.
 
 On commence par fusionner toutes les feuilles 0, puis toutes les feuilles 1.
 
@@ -106,18 +106,18 @@ On parcourt donc le graphe obtenu, et dès qu'on voit un n\oe ud dont les fils f
 Cependant, on a peut être compromis la condition d'unicité. On reparcourt alors en partant du bas pour supprimer les n\oe uds uniques. Puis on enlève encore les n\oe uds inutiles. Et on itère ces deux opérations jusqu'à stabilisation.
 
 L'algorithme termine puisque chacune des opérations fait diminuer strictement le nombre de n\oe uds et que le graphe initial est fini.
-L'algorithme est correct puisqu'à la fin, on satisfait les deux conditions d'unicité et d'utilité : on a donc bien un ROBDD. Enfin, on n'a à aucun moment altéré la formule représntée par le graphe : toutes ces opérations sont licites sémantiquement. %bizarrement formulé?
+L'algorithme est correct puisqu'à la fin, on satisfait les deux conditions d'unicité et d'utilité : on a donc bien un ROBDD. Enfin, on n'a à aucun moment altéré la formule représentée par le graphe : toutes ces opérations sont licites sémantiquement. %bizarrement formulé?
 
 Ainsi, pour toute formule, avec un ordre donné, il existe un ROBDD qui représente cette formule.
 
 \paragraph{Unicité :}
-Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliqées dans une formule.
+Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliquées dans une formule.
 
 \subparagraph{Initialisation :}
 $n = 0$ Lorsque la formule $f$ n'utilise aucune variable, alors elle est équivalente à 0 ou 1. L'unique ROBBD correspondant consiste donc en un seul n\oe ud.
 
 \subparagraph{Hérédité :}
-Supposons l'unicité pour toute formule utilisant $n$ variables. Considérons maintenant la formule $f$ en utiilsant $n+1$, notées $x_1\dots x_{n+1}$.
+Supposons l'unicité pour toute formule utilisant $n$ variables. Considérons maintenant la formule $f$ en utilisant $n+1$, notées $x_1\dots x_{n+1}$.
 
 On peut se trouver dans deux situations, selon si la variable $x_1$ est utile ou non dans la formule.
 
@@ -198,7 +198,7 @@ Pour les diagonales, il n'y a pas nécessairement une dame par diagonale. Cepend
 
 Il nous faut alors un moyen de paramétrer les diagonales pour parcourir les cases y appartenant.
 
-Pour les diagonales descendantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $i+j=k$. De plus, la diagonale commence en abcisse à l'indice $max(0,k-(n-1))$ et termine à l'indice $min(k,n-1)$. %ajouter un dessin? ou est ce que c'est suffisament clair?
+Pour les diagonales descendantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $i+j=k$. De plus, la diagonale commence en abscisse à l'indice $max(0,k-(n-1))$ et termine à l'indice $min(k,n-1)$. %ajouter un dessin? ou est ce que c'est suffisament clair?
 
 Nous avons donc les formules suivantes à ajouter :
 $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
@@ -210,7 +210,7 @@ $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigw
 
 On peut se passer des formules pour les premières et dernières diagonales. En effet, elles ne comportent qu'une seule case.
 
-Ainsi, la construction du ROBDD se fait à partir de la formule obtenue. Il suffit alors d'éxécuter \code{anysat} pour obtenir une valuation qui satisfait le problème.
+Ainsi, la construction du ROBDD se fait à partir de la formule obtenue. Il suffit alors d'exécuter \code{anysat} pour obtenir une valuation qui satisfait le problème.
 
 \subsection*{Résultats}
 \begin{lstlisting}
@@ -257,11 +257,11 @@ not satisfiable
 10000000
 \end{lstlisting}
 
-Pour 8 dames, l'éxécution prend quelques minutes (moins de 5).
+Pour 8 dames, l'exécution prend quelques minutes (moins de 5).
 
-\section*{Éxécuter notre code}
+\section*{Exécuter notre code}
 Le code se compile avec le \code{Makefile} déjà présent dans les sources qui nous étaient données. Attention, selon l'installation de \code{camlp5}, et la distribution utilisée, il peut être nécessaire de changer certains chemins vers des modules Caml dans le \code{Makefile}.
 
-Ainsi, il faut lancer \code{make} qui crée un éxécutable \code{main}. Celui-ci peut alors être lancé pour faire la résolution des $n$ dames.
+Ainsi, il faut lancer \code{make} qui crée un exécutable \code{main}. Celui-ci peut alors être lancé pour faire la résolution des $n$ dames.
 
 \end{document}
