@@ -16,7 +16,7 @@ initialization.cmo: initialization.ml
 	ocamlc -c initialization.ml
 
 Quotexpander.cmo: Quotexpander.ml
-	ocamlc -I +camlp5 -c Quotexpander.ml
+	ocamlc -I ~/.opam/4.02.3/lib/camlp5 -c Quotexpander.ml
 
 bdd.cmo: bdd.ml
 	ocamlc -c bdd.ml
@@ -24,6 +24,3 @@ bdd.cmo: bdd.ml
 clean :
 	rm -f *.cm[io]
 	rm -f *~
-
-
-
