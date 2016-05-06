@@ -58,28 +58,61 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
     | Et -> min i1 i2
     | Ou -> max i1 i2
     | Impl -> max (1 - i1) i2
-    | Equiv -> min (max (1 - i1) i2) (max (1 - i2) i1)
+    | Equiv -> if i1 = i2 then 1 else 0
   else
+    let _ = assert(op <> Impl) in
     (*if (not(isZero(i1)) && not(isOne(i1))) then
       if (not(isZero(i2)) && not(isOne(i2))) then*)
       let (var1, low1, high1) = (var t i1, low t i1, high t i1)
       and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
-      if (((var1 > var2)&& not(isZero(i1) && not(isOne(i1)))) || isZero(i2) || isOne(i2))then begin
-	print_string "1>2";
-	make t h var1 (apply t h op low1 i2) (apply t h op high1 i2) end
-      else if (((var2 > var1)&& not(isZero(i2) && not(isOne(i2)))) || isZero(i1) || isOne(i1))then begin
-	print_string "2>1";
-	make t h var2 (apply t h op i1 low2) (apply t h op i1 high2) end
-      else (* var1 == var2 *) begin
-  print_string "1=2";
-	make t h var1 (apply t h op low1 low2) (apply t h op high1 high2) end
+      if var1 > var2 then
+      begin
+        (* print_string "1>2 "; *)
+        make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)
+      end
+      else if var2 > var1 then
+      begin
+        (* print_string "2>1 "; *)
+        make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
+      end
+      else (* var1 == var2 *)
+      begin
+        (* print_string "1=2 "; *)
+        make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
+      end
       (*else
-	let (var1, low1, high1) = (var t i1, low t i1, high t i1) in 
+	let (var1, low1, high1) = (var t i1, low t i1, high t i1) in
 	 make t h var1 (apply t h op i2 low1) (apply t h op i2 high1)
-      else 
+      else
       let (var2, low2, high2) = (var t i2, low t i2, high t i2) in
       make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)*)
 ;;
+(*
+(*Ceci est la fonction de Florestan. Elle fonctionne parfaitement. *)
+let apply (tT : tableT) (tH : tableH) (opS : op) (u : id) (uu : id) : id =
+  let rec apply_aux tT tH v vv =
+    if ((isOne v) && (isOne vv)) || ((isZero v) && (isOne vv))
+      || ((isOne v) && (isZero vv)) || ((isZero v) && (isZero vv))
+      then match opS with
+      | Ou -> if (isOne v) || (isOne vv) then one else zero
+      | Et -> if (isOne v) && (isOne vv) then one else zero
+      | Impl -> if (isZero v) || (isOne vv) then one else zero
+      | Equiv -> if v = vv then one else zero
+    else begin
+      let a = var tT v and b = var tT vv in
+      if a = b
+        then make tT tH a
+          (apply_aux tT tH (low tT v) (low tT vv))
+          (apply_aux tT tH (high tT v) (high tT vv))
+      else if a < b
+        then make tT tH a
+          (apply_aux tT tH (low tT v) vv)
+          (apply_aux tT tH (high tT v) vv)
+      else make tT tH b
+          (apply_aux tT tH v (low tT vv))
+          (apply_aux tT tH v (high tT vv))
+    end
+  in apply_aux tT tH u uu;; *)
 
 let rec build (t:tableT) (h:tableH) (p:prop formula) =
   match p with
@@ -90,7 +123,7 @@ let rec build (t:tableT) (h:tableH) (p:prop formula) =
   | And (x, y) -> apply t h Et (build t h x) (build t h y)
   | Or (x, y) -> apply t h Ou (build t h x) (build t h y)
   | Iff (x, y) -> apply t h Equiv (build t h x) (build t h y)
-  | Imp (x, y) -> apply t h Impl (build t h x) (build t h y)
+  | Imp (x, y) -> apply t h Ou (build t h (Not x)) (build t h y)
 
 let rec sat (t:tableT) (i:id) =
   match i with
@@ -178,8 +211,8 @@ let nqueens_line n j =
 
 
 let nqueens_diag1 n k =
-  let formula = ref True in 
-  for i = (max 0 (k-n+1)) to (min k (n-1)) do 
+  let formula = ref True in
+  for i = (max 0 (k-n+1)) to (min k (n-1)) do
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
       let j = k-i' in
@@ -193,8 +226,8 @@ let nqueens_diag1 n k =
   !formula ;;
 
 let nqueens_diag2 n k =
-  let formula = ref True in 
-  for i = (max 0 (k-n+1)) to (min k (n-1)) do 
+  let formula = ref True in
+  for i = (max 0 (k-n+1)) to (min k (n-1)) do
     let formula_t = ref True in
     for i' = (max 0 (k-n+1)) to (min k (n-1)) do
       let j = i'-k+n-1 in
@@ -218,27 +251,27 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
-  print_formula !formula;
+  (* print_formula !formula; *)
   !formula ;;
 
 
-(*let nqueens_case n i j= 
-  let formula = ref True in 
-  for k = 0 to n-1 do 
-    if k<>i then 
+(*let nqueens_case n i j=
+  let formula = ref True in
+  for k = 0 to n-1 do
+    if k<>i then
       formula := And(!formula, Not(Atom(P(k+j*n)))); (* line *)
   done;
-  for k = 0 to n-1 do 
+  for k = 0 to n-1 do
     if k<>j then
       formula := And(!formula, Not(Atom(P(i+k*n)))); (* column *)
   done;
   Or(!formula, Not(Atom(P(i+j*n)))) ;;
 *)
 
-(*let nqueens_formula2 n = 
-  let formula = ref True in 
-  for i = 0 to n-1 do 
-    for j = 0 to n-1 do 
+(*let nqueens_formula2 n =
+  let formula = ref True in
+  for i = 0 to n-1 do
+    for j = 0 to n-1 do
       formula := And(!formula, nqueens_case n i j)
     done;
   done;
@@ -249,7 +282,7 @@ let nqueens n =
   let formula = nqueens_formula n in
   let t = init_t 2000 and h = init_ht 2000 in
   let id = build t h formula in
-  print_string "Finished building"; print_newline();
+  (* print_string "Finished building"; print_newline(); *)
   anysat t id;;
 
 let print_sol_nqueens n sol =
@@ -265,8 +298,8 @@ let print_sol_nqueens n sol =
   () ;;
 
 
-(*let _ =
-  for i = 2 to 2 do
+let _ =
+  for i = 1 to 8 do
     try
       print_int i; print_string " queens"; print_newline ();
       let result = nqueens i in
@@ -275,8 +308,7 @@ let print_sol_nqueens n sol =
     | Exception_Not_Satisfiable -> print_string "not satisfiable"; print_newline ();
   done;
   () ;;
-*)
 
 
-#use "test_case.ml"
-;;
+
+(* #use "test_case.ml" *)
