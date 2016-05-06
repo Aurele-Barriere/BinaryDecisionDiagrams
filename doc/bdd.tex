@@ -17,6 +17,7 @@
 \def\phix{\varphi\uparrow\up{x}}
 \def\ite{\textit{if-then-else}}
 \def\P{\mathcal{P}}
+\def\code#1{\texttt{#1}}
 \begin{document}
 \maketitle
 %\newpage
@@ -47,7 +48,7 @@ On commence par montrer que toute formule peut être mise sous forme d'un arbre 
 
 En effet, soit $\varphi$ une formule faisant intervenir $n$ variables. On choisit un ordre sur ces variables que l'on nomme $x_1\dots x_n$.
 
-On construit l'arbre de décision suivant : la racine est $x_1$, et le fils faible et fort de $x_i$ sont $x_{(i+1)}$ pour $i\in\{1\dots n-1\}$. Enfin les fils faibles et forts des noeuds étiquetés $x_n$ sont la valeur de $\varphi$ par la valuation qui à $x_i$ associe 1 si pour aboutir à cette feuille il faut prendre le fils fort à la $i$\up{ème} ligne, et 0 sinon.
+On construit l'arbre de décision suivant : la racine est $x_1$, et le fils faible et fort de $x_i$ sont $x_{(i+1)}$ pour $i\in\{1\dots n-1\}$. Enfin les fils faibles et forts des n\oe uds étiquetés $x_n$ sont la valeur de $\varphi$ par la valuation qui à $x_i$ associe 1 si pour aboutir à cette feuille il faut prendre le fils fort à la $i$\up{ème} ligne, et 0 sinon.
 %j'espere que c'est clair, c'est un truc tout ballot mais bon faut l'expliquer
 
 On remarque également que tout sous-arbre d'un arbre de décision reste un arbre de décision. %utile pour l'hérédité
@@ -61,7 +62,7 @@ On pose $\P(n)$ la propriété : ``Toute formule à $n$ variables est équivalen
 \paragraph{Initialisation : } 
 Pour $n=0$, la formule est nécessairement constante quelle que soit la valuation, égale à 0 ou 1. On peut donc prendre la formule \ite\ 0 ou 1 correspondante.
 
-Pour $n=1$, l'arbre de décision de la formule construit comme précédemment est ainsi réduit à 1 noeud interne (étiqueté par la variable utilisée, appelée $x$), dont les feuilles sont l'évaluation de $\varphi [ 1/x ]$ et $\varphi [ 0/x ]$ : 0 ou 1.
+Pour $n=1$, l'arbre de décision de la formule construit comme précédemment est ainsi réduit à 1 n\oe ud interne (étiqueté par la variable utilisée, appelée $x$), dont les feuilles sont l'évaluation de $\varphi [ 1/x ]$ et $\varphi [ 0/x ]$ : 0 ou 1.
 
 Dans ce cas, la formule est équivalent à $\phix$. C'est bien équivalent par la question précédente, et c'est bien une formule \ite\ car elle est formée à partir de l'opérateur \ite, des constantes 0 et 1 et que la formule test est $x$, une variable non niée.
 
@@ -113,7 +114,7 @@ Ainsi, pour toute formule, avec un ordre donné, il existe un ROBDD qui représe
 Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliqées dans une formule.
 
 \subparagraph{Initialisation :}
-$n = 0$ Lorsque la formule $f$ n'utilise aucune variable, alors elle est équivalente à 0 ou 1. L'unique ROBBD correspondant consiste donc en un seul noeud.
+$n = 0$ Lorsque la formule $f$ n'utilise aucune variable, alors elle est équivalente à 0 ou 1. L'unique ROBBD correspondant consiste donc en un seul n\oe ud.
 
 \subparagraph{Hérédité :}
 Supposons l'unicité pour toute formule utilisant $n$ variables. Considérons maintenant la formule $f$ en utiilsant $n+1$, notées $x_1\dots x_{n+1}$.
@@ -135,12 +136,123 @@ Cependant, dans $R_1$ et $R_2$, ces sous-ROBDD sont imbriqués : $l_1$ et $h_1$ 
 Il faut donc montrer qu'il n'y a qu'une seule manière d'imbriquer deux ROBDD utilisant les mêmes variables dans le même ordre.
 %c'est ca le point ``tricky''
 
-Or c'est bien le cas : pour chaque variable $x_i$, $i\in[2\dots n]$ (ou pour chaque n\oe ud 0 et 1), lorsque deux noeuds étiquetés par $x_i$ ont les même fils dans un ROBDD comme dans l'autre, on les fusionne. Et on recommence tant qu'il existe de tels n\oe uds. Ce procédé ne peut conduire qu'à un seul ROBDD (quel que soit l'ordre dans lequel on considère les variables à fusionner), puisqu'une fusion ne modifie pas les graphes en dehors du n\oe ud fusionné, et ce procédé termine puisqu'il y a un nombre fini de n\oe uds. Enfin, ce procédé donne bien un ROBDD puisqu'il élimine tous les n\oe uds semblables.
+Or c'est bien le cas : pour chaque variable $x_i$, $i\in[2\dots n]$ (ou pour chaque n\oe ud 0 et 1), lorsque deux n\oe uds étiquetés par $x_i$ ont les même fils dans un ROBDD comme dans l'autre, on les fusionne. Et on recommence tant qu'il existe de tels n\oe uds. Ce procédé ne peut conduire qu'à un seul ROBDD (quel que soit l'ordre dans lequel on considère les variables à fusionner), puisqu'une fusion ne modifie pas les graphes en dehors du n\oe ud fusionné, et ce procédé termine puisqu'il y a un nombre fini de n\oe uds. Enfin, ce procédé donne bien un ROBDD puisqu'il élimine tous les n\oe uds semblables.
 
 Il n'y a donc bien qu'une seule manière d'imbriquer $l_1$ et $h_1$. Donc $R_1$ et $R_2$ sont identiques. Donc il existe un unique ROBDD pour décrire une formule à $n+1$ variables.
 
 \subparagraph{Conclusion :} Ainsi, quel que soit le nombre de variables utilisées par une formule $f$, pour un ordre donné de ces variables il existe un unique ROBDD qui représente $f$.
 
+
+\section*{4. Implémentation de ROBDDs}
+\subsection*{Make}
+Pour la fonction \code{make}, on regarde si le n\oe ud existe déjà. Si ce n'est pas le cas, il faut l'ajouter dans les tables.
+% j'arrive pas a mieux xpliquer
+
+\subsection*{Apply\_neg}
+Pour la fonction \code{apply\_neg}, il faut changer les feuilles des ROBDDs. On parcourt donc le graphe récursivement en changer les 0 en 1 et les 1 en 0.
+
+\subsection*{Apply}
+Pour la fonction \code{apply}, il y a plusieurs cas.
+Si les deux bdds sont des n\oe uds 1 ou 0, alors on applique directement l'opérateur.
+
+Sinon, si les deux étiquettes des racines sont différentes, il faut prendre l'étiquette la plus petite (qui vient en premier dans l'ordre des variables) et construire le bdd qui a pour racine cett variable et comme fils la construction à partir de l'autre arbre et des fils de ce n\oe ud.
+
+Enfin, si les deux étiquettes sont égales, alors on peut simplifier et n'en garder qu'une dans le bdd final.
+
+
+On aurait pu utiliser la programmation dynamique. %détailler un peu
+
+\subsection*{Build}
+Pour la fonction \code{build}, il s'agit d'appels à \code{apply} avec le bon opérateur. On se sert de la définition inductive d'une formule.
+
+\subsection*{Sat}
+Une formulme est satisfiable s'il existe au moins une valuation qui la rend vraie. Dans le ROBDD, une valuation correspond à un chemin dans le graphe. Si cette valuation existe, alors il existe un chemin qui mène au n\oe ud 1 dans le graphe. 
+
+Alors il suffit de parcourir le graphe récursivement à la recherche d'un 1.
+
+\subsection*{Valid}
+Pour savoir si une fonction est une tautologie, il ne faut pas qu'une valuation puisse rendre fausse la formule. Il ne faut donc pas qu'il y ait de 0 dans le ROBDD. On parcourt donc de même le graphe à la recherche d'un 0.
+
+\subsection*{Anysat}
+Pour renvoyer une valuation qui satisfait la formule, on parcourt le graphe. Au fur et à mesure, on crée une liste de nos choix de chemins : c'est une valuation. Si on tombe sur 0, on a fait un mauvais choix, et on modifie donc la liste pour essayer une autre valuation. Si on tombe sur 1, alors on a une bonne valuation et on peut renvoyer la liste.
+
+\section*{4.6 Application : les $n$ dames}
+La résolution doit se découper en plusieurs étapes : création de la formule, traduction en ROBDD, résolution et affichage.
+
+La traduction en ROBDD se fait directement avec la fonction \code {build}, la résolution avec la fonction \code{anysat}. Enfin, on ajoute une fonction qui affichera l'échiquier.
+
+Pour traduire le problème en formule, nous avons choisi de prendre une variable par case de l'échiquier. Cette variable vaudra 1 ssi il y a une dame sur cette case.
+
+Il faut alors traduire les contraintes. Pour chaque ligne, il faut qu'il y ait une et une seule dame. Cela correspond à la formule suivante : 
+pour la ligne $i$, 
+$$\bigvee_{k=0}^{n-1} \left( x_{i,k}\wedge\bigwedge_{l=0,\ l\neq k}^{n-1} \neg x_{i,l}\right)$$
+De même pour chaque colonne $j$, 
+$$\bigvee_{k=0}^{n-1} \left( x_{k,j}\wedge\bigwedge_{l=0,\ l\neq k}^{n-1} \neg x_{l,j}\right)$$
+
+Pour les diagonales, il n'y a pas nécessairement une dame par diagonale. Cependant, pour la k\up{ième} diagonale, il faut préciser pour chaque case de cette diagonale que s'il y a une dame ici, alors il n'y en a pas sur toutes les autres cases de la diagonale.
+
+Il nous faut alors un moyen de paramétrer les diagonales pour parcourir les cases y appartenant.
+
+Pour les diagonales descendantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $i+j=k$. De plus, la diagonale commence en abcisse à l'indice $max(0,k-(n-1))$ et termine à l'indice $min(k,n-1)$. %ajouter un dessin? ou est ce que c'est suffisament clair?
+
+On a donc les formules suivantes à ajouter :
+$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0\,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
+
+
+Ensuite, pour les diagonales montantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $j=i-k+n-1$. 
+On a donc les formules suivantes à ajouter :
+$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigwedge_{l=max(0\,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, l-k+n-1}\right)$$
+
+On peut se passer des formules pour les premières et dernières diagonales (elles ne comportent qu'une case).
+
+On ajoute donc la règle correspondant à chaque ligne, colonne et diagonale et construit le ROBDD correpondant.
+
+\paragraph{Résultats}
+\begin{lstlisting}
+1 queens
+1
+2 queens
+not satisfiable
+3 queens
+not satisfiable
+4 queens
+0100
+0001
+1000
+0010
+5 queens
+00100
+00001
+01000
+00010
+10000
+6 queens
+001000
+000001
+010000
+000010
+100000
+000100
+7 queens
+0001000
+0000001
+0010000
+0000010
+0100000
+0000100
+1000000
+8 queens
+00100000
+00000100
+00010000
+01000000
+00000001
+00001000
+00000010
+10000000
+\end{lstlisting}
+
+Pour 8 dames, l'éxécution prend quelques minutes (moins de 5).
 
 \end{document}
 

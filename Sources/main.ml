@@ -9,27 +9,8 @@ open Bdd
 (* Pretty-printer for formulas, to be used with compiled mode *)
 let print_formula fm = print_prop_formula fm; print_newline();;
 
-let f = << ( 1 <=> 2 ) /\ ( 3 <=> 4 )>>;;
-print_formula f;;
-
 let max a b = if a>b then a else b;;
 let min a b = if a<b then a else b;;
-
-
-let taille = 100 in
-(* initialization of tables*)
-let t = init_t taille in
-let ht = init_ht taille in
-(* Adding a node for variable x_1, with low son 0 and high son 1 *)
-let u = add t 1 0 1 in
-  insert ht 1 0 1 u;
-
-  (* Adding a node for variable x_2, with low son 1 and high son u *)
-  let v = add t 2 1 u in
-    insert ht 2 1 u v;
-    debug_print_t t;
-    debug_print_h ht 10 10;
-    print_t t v "bla.dot";;
 
 
 (** Inserts an new node in tableT with variable i, and the given low and high
@@ -75,32 +56,6 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
       else (* var1 == var2 *)
         make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
 ;;
-(*
-(*Ceci est la fonction de Florestan. Elle fonctionne parfaitement. *)
-let apply (tT : tableT) (tH : tableH) (opS : op) (u : id) (uu : id) : id =
-  let rec apply_aux tT tH v vv =
-    if ((isOne v) && (isOne vv)) || ((isZero v) && (isOne vv))
-      || ((isOne v) && (isZero vv)) || ((isZero v) && (isZero vv))
-      then match opS with
-      | Ou -> if (isOne v) || (isOne vv) then one else zero
-      | Et -> if (isOne v) && (isOne vv) then one else zero
-      | Impl -> if (isZero v) || (isOne vv) then one else zero
-      | Equiv -> if v = vv then one else zero
-    else begin
-      let a = var tT v and b = var tT vv in
-      if a = b
-        then make tT tH a
-          (apply_aux tT tH (low tT v) (low tT vv))
-          (apply_aux tT tH (high tT v) (high tT vv))
-      else if a < b
-        then make tT tH a
-          (apply_aux tT tH (low tT v) vv)
-          (apply_aux tT tH (high tT v) vv)
-      else make tT tH b
-          (apply_aux tT tH v (low tT vv))
-          (apply_aux tT tH v (high tT vv))
-    end
-  in apply_aux tT tH u uu;; *)
 
 (* Creating a ROBDD with a formula.
    Returns the root *)
@@ -214,7 +169,7 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_column n i)
   done;
   for k = 1 to (2*n)-3 do 
-    (*the first ans last diagonals only have one square, thus do not ne    ed to add their formula *)
+    (*the first and last diagonals only have one square, thus do not ne    ed to add their formula *)
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
