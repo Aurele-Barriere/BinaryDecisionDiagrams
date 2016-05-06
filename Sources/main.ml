@@ -44,6 +44,8 @@ let make (t:tableT) (h:tableH) (i:variable) (low:id) (high:id) =
       insert h i low high u; u
     else low ;;
 
+
+(* Recursively applying the negation *)
 let rec apply_neg (t:tableT) (h:tableH) (i:id) =
   match i with
   | 0 -> 1
@@ -52,6 +54,9 @@ let rec apply_neg (t:tableT) (h:tableH) (i:id) =
     let (var, low, high) = (var t i, low t i, high t i) in
     make t h var (apply_neg t h low) (apply_neg t h high) ;;
 
+(* Constructing the resulting ROBDD with an operator and 2 graphs.
+   We must use as root the var with the higher label to keep the order.
+*)
 let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
   if (isZero(i1) || isOne(i1)) && (isZero(i2) || isOne(i2)) then
     match op with
@@ -61,31 +66,14 @@ let rec apply (t:tableT) (h:tableH) (op:op) (i1:id) (i2:id) =
     | Equiv -> if i1 = i2 then 1 else 0
   else
     let _ = assert(op <> Impl) in
-    (*if (not(isZero(i1)) && not(isOne(i1))) then
-      if (not(isZero(i2)) && not(isOne(i2))) then*)
       let (var1, low1, high1) = (var t i1, low t i1, high t i1)
       and (var2, low2, high2) = (var t i2, low t i2, high t i2) in
       if var1 > var2 then
-      begin
-        (* print_string "1>2 "; *)
         make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)
-      end
       else if var2 > var1 then
-      begin
-        (* print_string "2>1 "; *)
         make t h var1 (apply t h op low1 i2) (apply t h op high1 i2)
-      end
       else (* var1 == var2 *)
-      begin
-        (* print_string "1=2 "; *)
         make t h var1 (apply t h op low1 low2) (apply t h op high1 high2)
-      end
-      (*else
-	let (var1, low1, high1) = (var t i1, low t i1, high t i1) in
-	 make t h var1 (apply t h op i2 low1) (apply t h op i2 high1)
-      else
-      let (var2, low2, high2) = (var t i2, low t i2, high t i2) in
-      make t h var2 (apply t h op i1 low2) (apply t h op i1 high2)*)
 ;;
 (*
 (*Ceci est la fonction de Florestan. Elle fonctionne parfaitement. *)
@@ -114,6 +102,8 @@ let apply (tT : tableT) (tH : tableH) (opS : op) (u : id) (uu : id) : id =
     end
   in apply_aux tT tH u uu;; *)
 
+(* Creating a ROBDD with a formula.
+   Returns the root *)
 let rec build (t:tableT) (h:tableH) (p:prop formula) =
   match p with
   | False -> 0
@@ -125,6 +115,7 @@ let rec build (t:tableT) (h:tableH) (p:prop formula) =
   | Iff (x, y) -> apply t h Equiv (build t h x) (build t h y)
   | Imp (x, y) -> apply t h Ou (build t h (Not x)) (build t h y)
 
+(* A ROBDD is sat if there is the node 1 somewhere *)
 let rec sat (t:tableT) (i:id) =
   match i with
   | 0 -> false
@@ -133,6 +124,7 @@ let rec sat (t:tableT) (i:id) =
     let (l, h) = (low t i, high t i) in
     sat t l || sat t h ;;
 
+(* A ROBDD is a tautology if all final nodes are 1s *)
 let rec valid (t:tableT) (i:id) =
   match i with
   | 0 -> false
@@ -143,6 +135,9 @@ let rec valid (t:tableT) (i:id) =
 
 exception Exception_Not_Satisfiable
 
+(* To return a valuation, we construct it as we go through the graph
+   We modify it when we change branches.
+   We return it when a 1 is found *)
 let anysat (t:tableT) (i:id) =
   let rec f (t:tableT) (i:id) (lst:(variable * bool) list) =
     match i with
@@ -155,38 +150,7 @@ let anysat (t:tableT) (i:id) =
   in
   f t i [] ;;
 
-let _ =
-  let fsimple = << 1 /\ 2 >> in
-  let t = init_t 20 and h = init_ht 20 in
-  assert (build t h fsimple = 4);
-  print_string "Test 1 succeed"; print_newline ();;
-
-
-let _ =
-  let tauto = << ( 1 <=> 2 ) \/ ( 1 <=> ~2 ) >> in
-  let t = init_t 20 and h = init_ht 20 in
-  let tauto_id = build t h tauto in
-  assert(sat t tauto_id = true);
-  assert(valid t tauto_id = true);
-  assert(anysat t tauto_id = []);
-  print_string "Test 2 succeed"; print_newline () ;;
-
-let _ =
-  let always_false = << (1 <=> 2) /\ (1 <=> ~2) >> in
-  let t = init_t 20 and h = init_ht 20 in
-  let id = build t h always_false in
-  assert(sat t id = false);
-  assert(valid t id = false);
-  print_string "Test 3 succeed"; print_newline () ;;
-
-let _ =
-  let one_true = << 1 /\ (2 /\ ~3) >> in
-  let t = init_t 20 and h = init_ht 20 in
-  let id = build t h one_true in
-  assert(sat t id = true);
-  (*assert(anysat t id = [(1, true); (2, true); (3, false)]);*)
-  print_string "Test 4 succeed"; print_newline () ;;
-
+(* For a column i, there must be only one queen *)
 let nqueens_column n i =
   let formula = ref False in
   for j = 0 to n-1 do
@@ -198,6 +162,7 @@ let nqueens_column n i =
   done;
   !formula ;;
 
+(* For a line j, there must be only one queen *)
 let nqueens_line n j =
   let formula = ref False in
   for i = 0 to n-1 do
@@ -209,7 +174,7 @@ let nqueens_line n j =
   done;
   !formula ;;
 
-
+(* For the k rising diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
 let nqueens_diag1 n k =
   let formula = ref True in
   for i = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -225,6 +190,7 @@ let nqueens_diag1 n k =
   done;
   !formula ;;
 
+(* For the k receding diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
 let nqueens_diag2 n k =
   let formula = ref True in
   for i = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -240,51 +206,28 @@ let nqueens_diag2 n k =
   done;
   !formula ;;
 
-
+(* Creating the formula for n queens *)
 let nqueens_formula n =
   let formula = ref True in
   for i = 0 to n-1 do
     formula := And(!formula, nqueens_line n i);
     formula := And(!formula, nqueens_column n i)
   done;
-  for k = 1 to (2*n)-3 do
+  for k = 1 to (2*n)-3 do 
+    (*the first ans last diagonals only have one square, thus do not ne    ed to add their formula *)
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)
   done;
-  (* print_formula !formula; *)
   !formula ;;
 
-
-(*let nqueens_case n i j=
-  let formula = ref True in
-  for k = 0 to n-1 do
-    if k<>i then
-      formula := And(!formula, Not(Atom(P(k+j*n)))); (* line *)
-  done;
-  for k = 0 to n-1 do
-    if k<>j then
-      formula := And(!formula, Not(Atom(P(i+k*n)))); (* column *)
-  done;
-  Or(!formula, Not(Atom(P(i+j*n)))) ;;
-*)
-
-(*let nqueens_formula2 n =
-  let formula = ref True in
-  for i = 0 to n-1 do
-    for j = 0 to n-1 do
-      formula := And(!formula, nqueens_case n i j)
-    done;
-  done;
-  !formula ;;
-*)
-
+(* Creating the formula then resolving it *)
 let nqueens n =
   let formula = nqueens_formula n in
   let t = init_t 2000 and h = init_ht 2000 in
   let id = build t h formula in
-  (* print_string "Finished building"; print_newline(); *)
   anysat t id;;
 
+(* Printing a solution to the nqueens problem *)
 let print_sol_nqueens n sol =
   for i = 0 to n-1 do
     for j = 0 to n-1 do
@@ -308,7 +251,3 @@ let _ =
     | Exception_Not_Satisfiable -> print_string "not satisfiable"; print_newline ();
   done;
   () ;;
-
-
-
-(* #use "test_case.ml" *)
