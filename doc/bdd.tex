@@ -177,6 +177,8 @@ Pour savoir si une fonction est une tautologie, il ne faut pas qu'une valuation 
 Pour renvoyer une valuation qui satisfait la formule, on parcourt le graphe. Au fur et à mesure, on crée une liste de nos choix de chemins : c'est une valuation. Si on tombe sur 0, on a fait un mauvais choix, et on modifie donc la liste pour essayer une autre valuation. Si on tombe sur 1, alors on a une bonne valuation et on peut renvoyer la liste.
 
 \section*{4.6 Application : les $n$ dames}
+
+\subsection*{Construction de la formule}
 La résolution doit se découper en plusieurs étapes : création de la formule, traduction en ROBDD, résolution et affichage.
 
 La traduction en ROBDD se fait directement avec la fonction \code {build}, la résolution avec la fonction \code{anysat}. Enfin, on ajoute une fonction qui affichera l'échiquier.
@@ -196,18 +198,18 @@ Il nous faut alors un moyen de paramétrer les diagonales pour parcourir les cas
 Pour les diagonales descendantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $i+j=k$. De plus, la diagonale commence en abcisse à l'indice $max(0,k-(n-1))$ et termine à l'indice $min(k,n-1)$. %ajouter un dessin? ou est ce que c'est suffisament clair?
 
 On a donc les formules suivantes à ajouter :
-$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0\,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
+$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
 
 
 Ensuite, pour les diagonales montantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $j=i-k+n-1$. 
 On a donc les formules suivantes à ajouter :
-$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigwedge_{l=max(0\,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, l-k+n-1}\right)$$
+$$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, l-k+n-1}\right)$$
 
 On peut se passer des formules pour les premières et dernières diagonales (elles ne comportent qu'une case).
 
 On ajoute donc la règle correspondant à chaque ligne, colonne et diagonale et construit le ROBDD correpondant.
 
-\paragraph{Résultats}
+\subsection*{Résultats}
 \begin{lstlisting}
 1 queens
 1
@@ -253,6 +255,11 @@ not satisfiable
 \end{lstlisting}
 
 Pour 8 dames, l'éxécution prend quelques minutes (moins de 5).
+
+\section*{Éxécuter notre code}
+Le code se compile avec le \code{Makefile} déjà présent dans les sources qui nous étaient données. Attention, selon l'installation de \code{camlp5}, il peut être nécessaire de changer certains chemins vers des modules Caml au début du \code{Makefile} dans le dossier lib/.
+
+Ainsi, il faut lancer \code{make} qui crée un éxécutable \code{main}. Celui-ci peut alors être lancé pour faire la résolution des $n$ dames.
 
 \end{document}
 
