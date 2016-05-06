@@ -79,7 +79,7 @@ let rec sat (t:tableT) (i:id) =
     let (l, h) = (low t i, high t i) in
     sat t l || sat t h ;;
 
-(* A ROBDD is a tautology if all final nodes are 1s *)
+(* A ROBDD is a tautology if all final nodes are 1s. *)
 let rec valid (t:tableT) (i:id) =
   match i with
   | 0 -> false
@@ -129,7 +129,7 @@ let nqueens_line n j =
   done;
   !formula ;;
 
-(* For the k rising diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
+(* For the k-th rising diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
 let nqueens_diag1 n k =
   let formula = ref True in
   for i = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -145,7 +145,7 @@ let nqueens_diag1 n k =
   done;
   !formula ;;
 
-(* For the k receding diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
+(* For the k-th receding diagonal, if there is a queen, there are no queen elsewhere on the diagonal *)
 let nqueens_diag2 n k =
   let formula = ref True in
   for i = (max 0 (k-n+1)) to (min k (n-1)) do
@@ -168,7 +168,7 @@ let nqueens_formula n =
     formula := And(!formula, nqueens_line n i);
     formula := And(!formula, nqueens_column n i)
   done;
-  for k = 1 to (2*n)-3 do 
+  for k = 1 to (2*n)-3 do
     (*the first and last diagonals only have one square, thus do not ne    ed to add their formula *)
     formula := And(!formula, nqueens_diag1 n k);
     formula := And(!formula, nqueens_diag2 n k)

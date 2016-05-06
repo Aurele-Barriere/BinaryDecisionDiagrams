@@ -28,7 +28,7 @@
 
 On a $\varphi\equiv\phix$ ssi pour toute valuation $V$, $V(\varphi) = V(\phix)$.
 
-Soit $V$ une valuation quelconque. 
+Soit $V$ une valuation quelconque.
 
 \paragraph{Supposons dans un premier temps $V(x) = 1$.} Comme $\phix = (x \wedge\varphi[1/x])\vee(\neg x\wedge\varphi[0/x])$ par définition, on a $V(\phix) = V(\varphi[1/x])$.
 
@@ -59,7 +59,7 @@ On va montrer que toute formule est équivalente à une formule \ite\ par récur
 
 On pose $\P(n)$ la propriété : ``Toute formule à $n$ variables est équivalente à une formule \ite''.
 
-\paragraph{Initialisation : } 
+\paragraph{Initialisation : }
 Pour $n=0$, la formule est nécessairement constante quelle que soit la valuation, égale à 0 ou 1. On peut donc prendre la formule \ite\ 0 ou 1 correspondante.
 
 Pour $n=1$, l'arbre de décision de la formule construit comme précédemment est ainsi réduit à 1 n\oe ud interne (étiqueté par la variable utilisée, appelée $x$), dont les feuilles sont l'évaluation de $\varphi [ 1/x ]$ et $\varphi [ 0/x ]$ : 0 ou 1.
@@ -87,7 +87,7 @@ Nous considérons une formule $f$.
 \paragraph{Existence :}
 Proposons un algorithme pour construire un ROBDD à partir d'une formule. Si cet algorithme est correct, alors on aura bien l'existence d'un ROBDD pour représenter toute formule.
 
-Soit $f$ une formule, utilisant les variables $x_1\dots x_n$. Comme vu précédemment, on peut la mettre sous forme d'un arbre de décision ordonné, dont la racine est $x_1$, de fils $x_2$ \dots. 
+Soit $f$ une formule, utilisant les variables $x_1\dots x_n$. Comme vu précédemment, on peut la mettre sous forme d'un arbre de décision ordonné, dont la racine est $x_1$, de fils $x_2$ \dots.
 
 On va alors transformer cet arbre de décision en un ROBDD. Il faut conserver l'ordre des variables et supprimmer tout couple de n\oe uds ayant même étiquette et mêmes fils, puis vérifier la propriété d'utilité.
 
@@ -103,14 +103,14 @@ On dispose donc d'un arbre de décision ordonné, tel qu'il n'existe plus deux n
 
 On parcourt donc le graphe obtenu, et dès qu'on voit un n\oe ud dont les fils faibles et forts sont égaux, on le supprime et on fait pointer tout ce qui pointait vers lui vers son fils. Cela ne change pas le reste du graphe donc on peut le faire dans l'ordre que l'on veut, tant qu'il reste de tels n\oe uds. Cela ne change pas non plus l'ordre des variables.
 
-Cependant, on a peut être compromis la condition d'unicité. On reparcourt alors en partant du bas pour supprimer les n\oe uds uniques. Puis on enlève encore les n\oe uds inutiles. Et on itère ces deux opérations jusqu'à stabilisation. 
+Cependant, on a peut être compromis la condition d'unicité. On reparcourt alors en partant du bas pour supprimer les n\oe uds uniques. Puis on enlève encore les n\oe uds inutiles. Et on itère ces deux opérations jusqu'à stabilisation.
 
 L'algorithme termine puisque chacune des opérations fait diminuer strictement le nombre de n\oe uds et que le graphe initial est fini.
 L'algorithme est correct puisqu'à la fin, on satisfait les deux conditions d'unicité et d'utilité : on a donc bien un ROBDD. Enfin, on n'a à aucun moment altéré la formule représntée par le graphe : toutes ces opérations sont licites sémantiquement. %bizarrement formulé?
 
 Ainsi, pour toute formule, avec un ordre donné, il existe un ROBDD qui représente cette formule.
 
-\paragraph{Unicité :} 
+\paragraph{Unicité :}
 Nous allons montrer l'unicité par récurrence sur $n$, le nombre de variables impliqées dans une formule.
 
 \subparagraph{Initialisation :}
@@ -145,11 +145,11 @@ Il n'y a donc bien qu'une seule manière d'imbriquer $l_1$ et $h_1$. Donc $R_1$ 
 
 \section*{4. Implémentation de ROBDDs}
 \subsection*{Make}
-Pour la fonction \code{make}, on regarde si le n\oe ud existe déjà. Si ce n'est pas le cas, il faut l'ajouter dans les tables.
+Pour la fonction \code{make}, on regarde si le n\oe ud existe déjà. Si ce n'est pas le cas, il faut l'ajouter dans les tables, à condition que \code{low} et \code{high} soient différent. En effet, s'ils sont identiques, on peut simplifier le n\oe ud et renvoyer \code{low}.
 % j'arrive pas a mieux xpliquer
 
 \subsection*{Apply\_neg}
-Pour la fonction \code{apply\_neg}, il faut changer les feuilles des ROBDDs. On parcourt donc le graphe récursivement en changer les 0 en 1 et les 1 en 0.
+Pour la fonction \code{apply\_neg}, nous avons simplement implémenté la propriété qui nous été donnée. On a donc un parcours récursif de la formule, qui s'arrête une fois arrivé aux noeuds 0 et 1, que l'on inverse.
 
 \subsection*{Apply}
 Pour la fonction \code{apply}, il y a plusieurs cas.
@@ -160,18 +160,20 @@ Sinon, si les deux étiquettes des racines sont différentes, il faut prendre l'
 Enfin, si les deux étiquettes sont égales, alors on peut simplifier et n'en garder qu'une dans le bdd final.
 
 
-On aurait pu utiliser la programmation dynamique. %détailler un peu
+On aurait pu utiliser la programmation dynamique.
 
 \subsection*{Build}
 Pour la fonction \code{build}, il s'agit d'appels à \code{apply} avec le bon opérateur. On se sert de la définition inductive d'une formule.
 
 \subsection*{Sat}
-Une formulme est satisfiable s'il existe au moins une valuation qui la rend vraie. Dans le ROBDD, une valuation correspond à un chemin dans le graphe. Si cette valuation existe, alors il existe un chemin qui mène au n\oe ud 1 dans le graphe. 
+Une formule est satisfiable s'il existe au moins une valuation qui la rend vraie. Dans le ROBDD, une valuation correspond à un chemin dans le graphe. Si cette valuation existe, alors il existe un chemin qui mène au n\oe ud 1 dans le graphe.
 
 Alors il suffit de parcourir le graphe récursivement à la recherche d'un 1.
 
 \subsection*{Valid}
 Pour savoir si une fonction est une tautologie, il ne faut pas qu'une valuation puisse rendre fausse la formule. Il ne faut donc pas qu'il y ait de 0 dans le ROBDD. On parcourt donc de même le graphe à la recherche d'un 0.
+
+Notons également qu'une formule valide sera naturellement strictement équivalente à 1, et donc aura le même ROBDD que 1 par unicité du ROBDD. Cela nous aurait permis de vérifier la validité bien plus simplement. De même, une formule est satisfiable si et seulement si son ROBDD n'est pas 0.
 
 \subsection*{Anysat}
 Pour renvoyer une valuation qui satisfait la formule, on parcourt le graphe. Au fur et à mesure, on crée une liste de nos choix de chemins : c'est une valuation. Si on tombe sur 0, on a fait un mauvais choix, et on modifie donc la liste pour essayer une autre valuation. Si on tombe sur 1, alors on a une bonne valuation et on peut renvoyer la liste.
@@ -183,12 +185,12 @@ La résolution doit se découper en plusieurs étapes : création de la formule,
 
 La traduction en ROBDD se fait directement avec la fonction \code {build}, la résolution avec la fonction \code{anysat}. Enfin, on ajoute une fonction qui affichera l'échiquier.
 
-Pour traduire le problème en formule, nous avons choisi de prendre une variable par case de l'échiquier. Cette variable vaudra 1 ssi il y a une dame sur cette case.
+Pour traduire le problème en formule, nous avons choisi de prendre une variable par case de l'échiquier. Cette variable vaudra 1 si et seulement si il y a une dame sur cette case.
 
-Il faut alors traduire les contraintes. Pour chaque ligne, il faut qu'il y ait une et une seule dame. Cela correspond à la formule suivante : 
-pour la ligne $i$, 
+Il faut alors traduire les contraintes. Pour chaque ligne, il faut qu'il y ait une et une seule dame. Cela correspond à la formule suivante :
+pour la ligne $i$,
 $$\bigvee_{k=0}^{n-1} \left( x_{i,k}\wedge\bigwedge_{l=0,\ l\neq k}^{n-1} \neg x_{i,l}\right)$$
-De même pour chaque colonne $j$, 
+De même pour chaque colonne $j$,
 $$\bigvee_{k=0}^{n-1} \left( x_{k,j}\wedge\bigwedge_{l=0,\ l\neq k}^{n-1} \neg x_{l,j}\right)$$
 
 Pour les diagonales, il n'y a pas nécessairement une dame par diagonale. Cependant, pour la k\up{ième} diagonale, il faut préciser pour chaque case de cette diagonale que s'il y a une dame ici, alors il n'y en a pas sur toutes les autres cases de la diagonale.
@@ -201,7 +203,7 @@ On a donc les formules suivantes à ajouter :
 $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, k-i} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, k-l}\right)$$
 
 
-Ensuite, pour les diagonales montantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $j=i-k+n-1$. 
+Ensuite, pour les diagonales montantes, pour la k\up{ième} diagonale (ou $k\in[0\dots 2\times n-1]$, $x_{i,j}$ appartient à la diagonale ssi $j=i-k+n-1$.
 On a donc les formules suivantes à ajouter :
 $$\bigwedge_{i=max(0,k-(n-1))}^{min(k,n-1)} \left( \neg x_{i, i-k+n-1} \vee\bigwedge_{l=max(0,k-(n-1)),\ l\neq i}^{min(k,n-1)} \neg x_{l, l-k+n-1}\right)$$
 
@@ -262,4 +264,3 @@ Le code se compile avec le \code{Makefile} déjà présent dans les sources qui 
 Ainsi, il faut lancer \code{make} qui crée un éxécutable \code{main}. Celui-ci peut alors être lancé pour faire la résolution des $n$ dames.
 
 \end{document}
-
